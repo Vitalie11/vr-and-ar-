@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Concomitent VR și AR pentru Google Cardboard</title>
+
+    <!-- A-Frame pentru VR și AR.js pentru AR -->
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.7.2/aframe/build/aframe-ar.min.js"></script>
+
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: black;
+        }
+        .ui-container {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            z-index: 100;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        button:focus {
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- UI pentru butonul de intrare în modul VR -->
+    <div class="ui-container">
+        <button onclick="enterVR()">Intră în VR</button>
+    </div>
+
+    <!-- Scena principală -->
+    <a-scene embedded arjs="sourceType: webcam;" vr-mode-ui="enabled: true">
+        <!-- Marker AR detectabil de cameră -->
+        <a-marker preset="hiro">
+            <a-box position="0 0.5 0" material="color: red;"></a-box>
+        </a-marker>
+
+        <!-- Elemente VR vizibile mereu -->
+        <a-box position="0 1.5 -3" rotation="0 45 45" color="blue" shadow></a-box>
+        <a-sphere position="1 2 -5" radius="1.25" color="#FFC65D" shadow></a-sphere>
+        <a-plane position="0 0 -4" rotation="-90 0 0" width="10" height="10" color="#7BC8A4" shadow></a-plane>
+        <a-sky color="#ECECEC"></a-sky>
+
+        <!-- Camera cu suport pentru giroscop (look-controls) -->
+        <a-entity camera look-controls="magicWindowTrackingEnabled: true" wasd-controls position="0 1.6 0"></a-entity>
+    </a-scene>
+
+    <!-- Script pentru a intra în modul VR -->
+    <script>
+        function enterVR() {
+            // Intră în modul VR
+            const scene = document.querySelector('a-scene');
+            scene.enterVR();
+        }
+    </script>
+    
+</body>
+</html>
