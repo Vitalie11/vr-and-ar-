@@ -1,85 +1,36 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AR cu Camera</title>
-
-    <!-- A-Frame pentru VR și AR.js pentru AR -->
+    <title>Joc VR/AR cu Giroscop</title>
     <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.rawgit.com/jeromeetienne/AR.js/1.7.2/aframe/build/aframe-ar.min.js"></script>
-
+    <script src="https://cdn.rawgit.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <style>
-        body {
-            margin: 0;
-            overflow: hidden;
-            background-color: black;
-        }
-        .ui-container {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            z-index: 100;
-        }
-        button {
-            padding: 10px 20px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        button:focus {
-            outline: none;
-        }
+        body { margin: 0; overflow: hidden; }
     </style>
 </head>
 <body>
 
-    <!-- UI pentru butonul de intrare în modul VR -->
-    <div class="ui-container">
-        <button onclick="enterVR()">Intră în VR</button>
-    </div>
-
-    <!-- Scena principală -->
-    <a-scene embedded arjs="sourceType: webcam;" vr-mode-ui="enabled: true">
-        <!-- Marker AR detectabil de cameră -->
+    <a-scene embedded arjs>
         <a-marker preset="hiro">
-            <!-- Aici poți adăuga un obiect pe marker, dar îl vom lăsa gol pentru a scana camera -->
-            <!-- <a-box position="0 0.5 0" material="color: red;"></a-box> -->
+            <a-box position='0 0.5 0' material='color: blue;'></a-box>
         </a-marker>
-
-        <!-- Camera cu suport pentru giroscop (look-controls) -->
-        <a-entity 
-            camera 
-            look-controls="magicWindowTrackingEnabled: true; touchEnabled: true;" 
-            position="0 1.6 0">
-        </a-entity>
+        <a-entity camera look-controls></a-entity>
     </a-scene>
 
-    <!-- Script pentru a intra în modul VR în full-screen -->
-    <script>
-        function enterVR() {
-            // Intră în modul VR full-screen
-            const scene = document.querySelector('a-scene');
-            scene.enterVR();
+    <button id="enter-vr" style="position: absolute; top: 10px; left: 10px;">Intră în VR</button>
 
-            // Verifică dacă este în modul full-screen
-            if (scene.requestFullscreen) {
-                scene.requestFullscreen();
-            } else if (scene.webkitRequestFullscreen) { // Safari
-                scene.webkitRequestFullscreen();
-            } else if (scene.mozRequestFullScreen) { // Firefox
-                scene.mozRequestFullScreen();
-            } else if (scene.msRequestFullscreen) { // IE/Edge
-                scene.msRequestFullscreen();
+    <script>
+        const button = document.getElementById('enter-vr');
+        button.addEventListener('click', () => {
+            const scene = document.querySelector('a-scene');
+            if (scene) {
+                scene.enterVR();
+                document.body.requestFullscreen(); // Intră în full-screen
             }
-        }
+        });
     </script>
-    
+
 </body>
 </html>
