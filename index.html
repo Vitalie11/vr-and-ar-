@@ -1,36 +1,109 @@
 <!DOCTYPE html>
-<html lang="ro">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Joc VR/AR cu Giroscop</title>
-    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
-    <script src="https://cdn.rawgit.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <title>AR Floor Scanning</title>
     <style>
-        body { margin: 0; overflow: hidden; }
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        canvas {
+            display: block;
+        }
     </style>
 </head>
 <body>
-
-    <a-scene embedded arjs>
-        <a-marker preset="hiro">
-            <a-box position='0 0.5 0' material='color: blue;'></a-box>
-        </a-marker>
-        <a-entity camera look-controls></a-entity>
-    </a-scene>
-
-    <button id="enter-vr" style="position: absolute; top: 10px; left: 10px;">Intră în VR</button>
-
+    <script src="https://threejs.org/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@ar-js-org/ar.js@3.3.2/aframe/build/aframe-ar.js"></script>
+    
     <script>
-        const button = document.getElementById('enter-vr');
-        button.addEventListener('click', () => {
-            const scene = document.querySelector('a-scene');
-            if (scene) {
-                scene.enterVR();
-                document.body.requestFullscreen(); // Intră în full-screen
-            }
-        });
-    </script>
+        // Inițializăm scena
+        let scene, camera, renderer, floorMesh;
+        let arToolkitSource, arToolkitContext;
 
+        init();
+        animate();
+
+        function init() {
+            // Creăm scena
+            scene = new THREE.Scene();
+
+            // Creăm camera
+            camera = new THREE.Camera();
+            scene.add(camera);
+
+            // Setăm renderer-ul
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true
+            });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(window.devicePixelRatio);
+            document.body.appendChild(renderer.domElement);
+
+            // AR Toolkit
+            arToolkitSource = new THREEx.ArToolkitSource({
+                sourceType: 'webcam'
+            });
+
+            arToolkitSource.init(() => {
+                setTimeout(() => {
+                    onResize();
+                }, 2000);
+            });
+
+            window.addEventListener('resize', () => {
+                onResize();
+            });
+
+            // AR Toolkit Context
+            arToolkitContext = new THREEx.ArToolkitContext({
+                cameraParametersUrl: 'https://cdn.jsdelivr.net/gh/AR-js-org/AR.js@master/data/data/camera_para.dat',
+                detectionMode: 'mono'
+            });
+
+            arToolkitContext.init(() => {
+                camera.projectionMatrix.copy(arToolkitContext.getProjectionMatrix());
+            });
+
+            // Creăm podeaua pentru scanare
+            let geometry = new THREE.PlaneGeometry(1, 1);
+            let material = new THREE.MeshBasicMaterial({
+                color: 0x00ff00,
+                wireframe: true, // Linie de contur
+                side: THREE.DoubleSide
+            });
+
+            floorMesh = new THREE.Mesh(geometry, material);
+            floorMesh.rotation.x = -Math.PI / 2;
+            floorMesh.position.y = 0; // Poziționăm pe sol
+            scene.add(floorMesh);
+        }
+
+        function onResize() {
+            arToolkitSource.onResizeElement();
+            arToolkitSource.copyElementSizeTo(renderer.domElement);
+            if (arToolkitContext.arController !== null) {
+                arToolkitSource.copyElementSizeTo(arToolkitContext.arController.canvas);
+            }
+        }
+
+        function update() {
+            if (arToolkitSource.ready) {
+                arToolkitContext.update(arToolkitSource.domElement);
+            }
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            update();
+            renderer.render(scene, camera);
+        }
+    </script>
 </body>
 </html>
